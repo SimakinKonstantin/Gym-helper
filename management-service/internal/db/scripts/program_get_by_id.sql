@@ -1,0 +1,1 @@
+SELECT id, user_login, name FROM programs WHERE id=$1 AND user_login=$2 LIMIT 1;

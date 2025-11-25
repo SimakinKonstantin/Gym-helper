@@ -1,0 +1,1 @@
+DELETE FROM programs_trainings WHERE training_id=$1 AND program_id=$2 AND day=$3;

@@ -1,0 +1,87 @@
+definitions:
+  internal.SignInReq:
+    properties:
+      login:
+        type: string
+      password:
+        type: string
+    type: object
+  internal.SignInResp:
+    properties:
+      token:
+        type: string
+    type: object
+  internal.SignUpReq:
+    properties:
+      login:
+        type: string
+      password:
+        type: string
+    type: object
+host: localhost:8081
+info:
+  contact:
+    email: support@swagger.io
+    name: API Support
+    url: http://www.swagger.io/support
+  description: Сервис аутентификации
+  license:
+    name: Apache 2.0
+    url: http://www.apache.org/licenses/LICENSE-2.0.html
+  termsOfService: http://swagger.io/terms/
+  title: Auth-Service
+  version: "2.0"
+paths:
+  /sign-in:
+    post:
+      description: Войти в существующий аккаунт
+      parameters:
+      - description: Данные для входа
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/internal.SignInReq'
+      responses:
+        "200":
+          description: JWT-токен
+          schema:
+            $ref: '#/definitions/internal.SignInResp'
+        "400":
+          description: Ошибки в передаваемых параметрах
+          schema:
+            type: string
+        "401":
+          description: Неверный логин или пароль
+          schema:
+            type: string
+      summary: Войти
+      tags:
+      - Аутентификация
+  /sign-up:
+    post:
+      description: Создает нового пользователя
+      parameters:
+      - description: Данные для регистрации
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/internal.SignUpReq'
+      responses:
+        "200":
+          description: Успешно зарегистрировался
+          schema:
+            type: string
+        "400":
+          description: Ошибки в передаваемых параметрах
+          schema:
+            type: string
+        "409":
+          description: Пользователь с таким логином уже существует
+          schema:
+            type: string
+      summary: Зарегистрироваться
+      tags:
+      - Аутентификация
+swagger: "2.0"

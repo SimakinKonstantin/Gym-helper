@@ -1,0 +1,1 @@
+DELETE FROM programs WHERE id = $1 and user_login = $2;

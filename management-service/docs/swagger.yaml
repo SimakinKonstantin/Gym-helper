@@ -1,0 +1,328 @@
+definitions:
+  internal.AddTrainingToProgramReq:
+    properties:
+      day:
+        type: integer
+      program_id:
+        type: integer
+      training:
+        type: integer
+    type: object
+  internal.CreateProgramReq:
+    properties:
+      name:
+        type: string
+      user_login:
+        type: string
+    type: object
+  internal.DeleteTrainingToProgramReq:
+    properties:
+      day:
+        type: integer
+      program_id:
+        type: integer
+      training:
+        type: integer
+    type: object
+  internal.Exercise:
+    properties:
+      name:
+        type: string
+      sets:
+        items:
+          $ref: '#/definitions/internal.Set'
+        type: array
+    type: object
+  internal.ProgramDb:
+    properties:
+      id:
+        type: integer
+      name:
+        type: string
+      userLogin:
+        type: string
+    type: object
+  internal.Set:
+    properties:
+      reps:
+        type: integer
+      weight:
+        type: number
+    type: object
+  internal.TrainingDb:
+    properties:
+      exercises:
+        items:
+          $ref: '#/definitions/internal.Exercise'
+        type: array
+      id:
+        type: integer
+      name:
+        type: string
+      userLogin:
+        type: string
+    type: object
+host: localhost:8082
+info:
+  contact:
+    email: support@swagger.io
+    name: API Support
+    url: http://www.swagger.io/support
+  description: Сервис аутентификации
+  license:
+    name: Apache 2.0
+    url: http://www.apache.org/licenses/LICENSE-2.0.html
+  termsOfService: http://swagger.io/terms/
+  title: Auth-Service
+  version: "2.0"
+paths:
+  /programs:
+    get:
+      description: Получить все программы тренировок пользователя
+      parameters:
+      - description: Логин пользователя
+        in: header
+        name: X-User-Login
+        required: true
+        type: string
+      responses:
+        "200":
+          description: Программы тренировок
+          schema:
+            items:
+              $ref: '#/definitions/internal.ProgramDb'
+            type: array
+        "400":
+          description: Ошибка
+      summary: Получить все программы тренировок пользователя
+      tags:
+      - Программы тренировок
+    post:
+      description: Создать программу тренировок
+      parameters:
+      - description: Данные для создания программы
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/internal.CreateProgramReq'
+      responses:
+        "201":
+          description: Программа тренировок создана
+        "400":
+          description: Ошибка
+      summary: Создать программу тренировок
+      tags:
+      - Программы тренировок
+  /programs/{id}:
+    delete:
+      description: Удалить программу тренировок
+      parameters:
+      - description: Логин пользователя
+        in: header
+        name: X-User-Login
+        required: true
+        type: string
+      - description: id программы тренировок
+        in: path
+        name: id
+        required: true
+        type: integer
+      responses:
+        "200":
+          description: Успешно удалили
+        "400":
+          description: Ошибка
+      summary: Удалить программу тренировок
+      tags:
+      - Программы тренировок
+    get:
+      description: Получить программу тренировок
+      parameters:
+      - description: Логин пользователя
+        in: header
+        name: X-User-Login
+        required: true
+        type: string
+      - description: id программы тренировок
+        in: path
+        name: id
+        required: true
+        type: integer
+      responses:
+        "200":
+          description: Программа тренировок
+          schema:
+            $ref: '#/definitions/internal.ProgramDb'
+        "400":
+          description: Ошибка
+      summary: Получить программу тренировок
+      tags:
+      - Программы тренировок
+  /programs/{id}/trainings:
+    get:
+      description: Получить тренировки конкретной программы
+      parameters:
+      - description: id программы тренировок
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: Логин пользователя
+        in: header
+        name: X-User-Login
+        required: true
+        type: string
+      responses:
+        "200":
+          description: Тренировки программы
+          schema:
+            items:
+              $ref: '#/definitions/internal.TrainingDb'
+            type: array
+        "400":
+          description: Ошибка
+      summary: Получить тренировки конкретной программы
+      tags:
+      - Программы тренировок
+  /programs/trainings:
+    delete:
+      description: Удалить тренировку из программы тренировок
+      parameters:
+      - description: Данные для удаления тренировки из программы
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/internal.DeleteTrainingToProgramReq'
+      responses:
+        "200":
+          description: Тренировка удалена из программы
+        "400":
+          description: Ошибка
+      summary: Удалить тренировку из программы тренировок
+      tags:
+      - Программы тренировок
+    post:
+      description: Добавить тренировку в программу тренировок
+      parameters:
+      - description: Данные для добавления тренировки в программу
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/internal.AddTrainingToProgramReq'
+      responses:
+        "200":
+          description: Тренировка добавлена в программу
+        "400":
+          description: Ошибка
+      summary: Добавить тренировку в программу тренировок
+      tags:
+      - Программы тренировок
+  /trainings:
+    get:
+      description: Получить все тренировки пользователя
+      parameters:
+      - description: Логин пользователя
+        in: path
+        name: login
+        required: true
+        type: string
+      responses:
+        "200":
+          description: Тренировки пользователя
+          schema:
+            items:
+              $ref: '#/definitions/internal.TrainingDb'
+            type: array
+        "400":
+          description: Ошибка
+      summary: Получить все тренировки пользователя
+      tags:
+      - Тренировки
+    post:
+      description: Создать тренировку
+      parameters:
+      - description: Данные для создания тренировки
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/internal.TrainingDb'
+      responses:
+        "200":
+          description: Тренировка создана
+        "400":
+          description: Ошибка
+      summary: Создать тренировку
+      tags:
+      - Тренировки
+  /trainings/{id}:
+    delete:
+      description: Удалить тренировку
+      parameters:
+      - description: id тренировки
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: Логин пользователя
+        in: header
+        name: X-User-Login
+        required: true
+        type: string
+      responses:
+        "200":
+          description: Тренировка удалена
+        "400":
+          description: Ошибка
+      summary: Удалить тренировку
+      tags:
+      - Тренировки
+    get:
+      description: Получить тренировку по id
+      parameters:
+      - description: id тренировки
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: Логин пользователя
+        in: header
+        name: login
+        required: true
+        type: string
+      responses:
+        "200":
+          description: Тренировка
+          schema:
+            $ref: '#/definitions/internal.TrainingDb'
+        "400":
+          description: Ошибка
+      summary: Получить тренировку по id
+      tags:
+      - Тренировки
+    patch:
+      description: Обновить тренировку
+      parameters:
+      - description: id тренировки
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: Данные для обновления тренировки
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/internal.TrainingDb'
+      responses:
+        "200":
+          description: Тренировка обновлена
+        "400":
+          description: Ошибка
+      summary: Обновить тренировку
+      tags:
+      - Тренировки
+swagger: "2.0"

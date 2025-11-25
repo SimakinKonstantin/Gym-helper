@@ -1,0 +1,1 @@
+SELECT id, user_login, name, exercises FROM trainings WHERE user_login=$1;

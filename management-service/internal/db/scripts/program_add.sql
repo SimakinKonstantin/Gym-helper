@@ -1,0 +1,1 @@
+INSERT INTO programs (user_login, name) VALUES ($1, $2);

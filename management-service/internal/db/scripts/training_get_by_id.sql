@@ -1,0 +1,1 @@
+SELECT id, user_login, name, exercises FROM trainings WHERE id=$1 AND user_login=$2 LIMIT 1;

@@ -1,0 +1,1 @@
+SELECT id, user_login, name FROM programs WHERE user_login=$1;

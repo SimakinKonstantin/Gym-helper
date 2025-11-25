@@ -1,0 +1,1 @@
+SELECT login, hash FROM users WHERE login=$1 LIMIT 1;

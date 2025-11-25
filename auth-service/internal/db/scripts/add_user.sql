@@ -1,0 +1,1 @@
+INSERT INTO users (login, hash) VALUES ($1, $2);
