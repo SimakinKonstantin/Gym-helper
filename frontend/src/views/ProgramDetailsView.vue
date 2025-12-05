@@ -29,7 +29,7 @@
           Тренировка
           <select
             v-model.number="form.trainingId"
-            :disabled="form.isRestDay"
+            :disabled="form.isRestDay || (form.day && isRestDay(Number(form.day)))"
             :required="!form.isRestDay"
           >
             <option disabled value="">Выберите тренировку</option>
@@ -40,11 +40,25 @@
         </label>
         <label class="stack-sm checkbox-inline">
           <span class="muted">Выходной день</span>
-          <input v-model="form.isRestDay" type="checkbox" />
+          <input 
+            v-model="form.isRestDay" 
+            type="checkbox"
+            :disabled="form.day && (isRestDay(Number(form.day)) || hasTrainingOnDay(Number(form.day)))"
+          />
         </label>
+        <div v-if="form.day && isRestDay(Number(form.day))" class="stack-sm">
+          <span class="muted" style="color: #ef4444;">
+            ⚠️ В этот день уже установлен отдых. Удалите день отдыха перед добавлением тренировки.
+          </span>
+        </div>
+        <div v-else-if="form.day && hasTrainingOnDay(Number(form.day)) && form.isRestDay" class="stack-sm">
+          <span class="muted" style="color: #ef4444;">
+            ⚠️ В этот день уже есть тренировка. Удалите тренировку перед добавлением дня отдыха.
+          </span>
+        </div>
         <div class="stack-sm">
           <span class="muted">&nbsp;</span>
-          <button type="submit" :disabled="!form.day">
+          <button type="submit" :disabled="!form.day || !canAddToDay">
             Добавить в программу
           </button>
         </div>
@@ -131,11 +145,41 @@ watch(
   () => load(),
 );
 
+// Проверка, можно ли добавить элемент в выбранный день
+const canAddToDay = computed(() => {
+  if (!form.day) return true;
+  const day = Number(form.day);
+  const hasRest = isRestDay(day);
+  const hasTraining = hasTrainingOnDay(day);
+  
+  // Если день уже содержит отдых, нельзя добавить ничего
+  if (hasRest) return false;
+  // Если день уже содержит тренировку и пытаются добавить отдых, нельзя
+  if (hasTraining && form.isRestDay) return false;
+  // Если день уже содержит тренировку и пытаются добавить еще одну тренировку, можно
+  // Но если пытаются добавить отдых, нельзя
+  return true;
+});
+
 const handleAttach = async () => {
   const id = Number(route.params.id);
+  const day = Number(form.day);
+  
+  // Проверка: если в день уже есть отдых, нельзя добавить ничего
+  if (isRestDay(day)) {
+    alert('В этот день уже установлен отдых. Удалите день отдыха перед добавлением тренировки.');
+    return;
+  }
+  
+  // Проверка: если в день уже есть тренировка и пытаются добавить отдых, нельзя
+  if (hasTrainingOnDay(day) && form.isRestDay) {
+    alert('В этот день уже есть тренировка. Удалите тренировку перед добавлением дня отдыха.');
+    return;
+  }
+  
   await programsStore.addTraining({
     programId: id,
-    day: Number(form.day),
+    day: day,
     trainingId: form.isRestDay ? null : Number(form.trainingId),
   });
   form.day = '';
