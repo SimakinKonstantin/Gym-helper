@@ -22,7 +22,8 @@ export const useProgramsStore = defineStore('programs', {
     async fetchPrograms() {
       this.loading = true;
       try {
-        this.items = await getPrograms();
+        const programs = await getPrograms();
+        this.items = Array.isArray(programs) ? programs : [];
       } catch (error) {
         this.error = error;
       } finally {
@@ -43,14 +44,23 @@ export const useProgramsStore = defineStore('programs', {
       }
     },
     async fetchProgram(id) {
-      this.current = await getProgram(id);
-      this.currentTrainings = await getProgramTrainings(id);
+      // Получаем информацию о программе из списка, если она там есть
+      const programFromList = this.items.find((p) => p.id === id);
+      if (programFromList) {
+        this.current = programFromList;
+      } else {
+        // Если программы нет в списке, пытаемся получить отдельно
+        this.current = (await getProgram(id)) ?? null;
+      }
+      // Получаем расписание тренировок по дням
+      const schedule = await getProgramTrainings(id);
+      this.currentTrainings = Array.isArray(schedule) ? schedule : [];
     },
     async addTraining({ programId, day, trainingId }) {
       await attachTrainingToProgram({
         program_id: programId,
         day,
-        training: trainingId,
+        training_id: trainingId ?? null,
       });
       await this.fetchProgram(programId);
     },
@@ -58,7 +68,7 @@ export const useProgramsStore = defineStore('programs', {
       await detachTrainingFromProgram({
         program_id: programId,
         day,
-        training: trainingId,
+        training_id: trainingId ?? null,
       });
       await this.fetchProgram(programId);
     },

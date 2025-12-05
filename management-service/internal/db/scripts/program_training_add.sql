@@ -1,1 +1,1 @@
-INSERT INTO programs_trainings (training_id, program_id, day) VALUES ($1, $2, $3);
+INSERT INTO programs_trainings (program_id, training_id, day) VALUES ($1, $2, $3);

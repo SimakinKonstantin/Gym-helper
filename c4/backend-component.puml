@@ -1,0 +1,37 @@
+@startuml
+!include https://raw.githubusercontent.com/plantuml-stdlib/C4-PlantUML/master/C4_Component.puml
+
+title Backend - Уровень Component
+
+LAYOUT_LEFT_RIGHT()
+
+Component(frontend, "Frontend", "Vue.js", "Пользовательский интерфейс приложения")
+
+Container_Boundary(backend, "Backend") {
+    Component(gateway, "Gateway", "Golang", "API Gateway, маршрутизация запросов и аутентификация")
+    Component(authService, "Auth Service", "Golang", "Сервис аутентификации и авторизации")
+    Component(managementService, "Management Service", "Golang", "Сервис управления программами и тренировками")
+    Component(statisticsService, "Statistics Service", "Golang", "Сервис обработки и хранения статистики тренировок")
+    ContainerQueue(kafka, "Очередь на подтверждение программ тренировок", "Kafka", "Передает программу тренировок до пользователя для подтверждения")
+}
+
+Component(statisticsDb,  "БД сервиса статистики", "PostgreSQL", "Хранение статистики тренировок")
+Component(usersDb, "БД сервиса аутентификации", "PostgreSQL",  "Хранение пользователей")
+Component(managementDb, "БД сервиса тренировок", "PostgreSQL",  "Хранений тренировок")
+
+Rel(frontend, gateway, "Отправляет запросы", "HTTP")
+
+Rel(gateway, authService, "Проксирование запросов аутентификации", "HTTP")
+Rel(gateway, managementService, "Проксирование запросов управления", "HTTP")
+Rel(gateway, statisticsService, "Проксирование запросов статистики", "HTTP")
+Rel(gateway, kafka, "Отправка запроса на анализ тренировки", "TCP")
+Rel(kafka, statisticsService, "Отправка запроса на анализ тренировки", "TCP")
+
+
+Rel(authService, usersDb, "Хранение пользователей", "SQL")
+Rel(managementService, managementDb, "Хранение программ и тренировок", "SQL")
+Rel(statisticsService, statisticsDb, "Хранение статистики", "SQL")
+
+SHOW_LEGEND()
+@enduml
+

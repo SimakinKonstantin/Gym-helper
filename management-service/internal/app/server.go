@@ -2,7 +2,7 @@ package app
 
 import (
 	"github.com/gorilla/mux"
-	//httpSwagger "github.com/swaggo/http-swagger"
+	"github.com/prometheus/client_golang/prometheus/promhttp"
 	"net/http"
 )
 
@@ -24,7 +24,7 @@ func (app *App) CreateServer(addr string) *http.Server {
 	router.HandleFunc("/programs/trainings", app.AddTrainingToProgram).Methods(http.MethodPost)
 	router.HandleFunc("/programs/trainings", app.DeleteTrainingToProgram).Methods(http.MethodDelete)
 
-	//router.PathPrefix("/swagger/").Handler(httpSwagger.Handler(httpSwagger.URL("http://localhost:8082/swagger/doc.json")))
+	router.Handle("/metrics", promhttp.Handler())
 
 	return &http.Server{
 		Addr:    addr,

@@ -14,6 +14,7 @@ http.interceptors.request.use((config) => {
   const { login, token } = storeToRefs(authStore);
   if (login.value) {
     config.headers['X-User-Login'] = login.value;
+    config.headers['User-Login-Id'] = login.value;
     config.headers.login = login.value;
   }
   if (token.value) {

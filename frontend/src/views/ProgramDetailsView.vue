@@ -2,32 +2,49 @@
   <section class="stack" v-if="program">
     <article class="card stack">
       <div>
-        <RouterLink to="/programs" class="muted">← Назад к программам</RouterLink>
+        <RouterLink to="/app/programs" class="muted">← Назад к программам</RouterLink>
         <h2>{{ program.name }}</h2>
-        <p class="muted">ID: {{ program.id }}</p>
       </div>
-      <form class="grid" @submit.prevent="handleAttach">
+      <form class="stack" @submit.prevent="handleAttach">
         <label class="stack-sm">
           День
-          <select v-model.number="form.day" required>
-            <option disabled value="">Выберите день</option>
-            <option v-for="day in 7" :key="day" :value="day">
-              День {{ day }}
-            </option>
-          </select>
+          <div class="calendar">
+            <button
+              v-for="day in 30"
+              :key="day"
+              type="button"
+              class="calendar-day"
+              :class="{
+                'calendar-day--selected': form.day === day,
+                'calendar-day--has-training': hasTrainingOnDay(day),
+                'calendar-day--rest-day': isRestDay(day),
+              }"
+              @click="form.day = day"
+            >
+              {{ day }}
+            </button>
+          </div>
         </label>
         <label class="stack-sm">
           Тренировка
-          <select v-model.number="form.trainingId" required>
+          <select
+            v-model.number="form.trainingId"
+            :disabled="form.isRestDay"
+            :required="!form.isRestDay"
+          >
             <option disabled value="">Выберите тренировку</option>
             <option v-for="training in trainings" :key="training.id" :value="training.id">
               {{ training.name }}
             </option>
           </select>
         </label>
+        <label class="stack-sm checkbox-inline">
+          <span class="muted">Выходной день</span>
+          <input v-model="form.isRestDay" type="checkbox" />
+        </label>
         <div class="stack-sm">
           <span class="muted">&nbsp;</span>
-          <button type="submit" :disabled="!form.trainingId || !form.day">
+          <button type="submit" :disabled="!form.day">
             Добавить в программу
           </button>
         </div>
@@ -40,22 +57,29 @@
       </header>
       <div class="stack" v-if="programTrainings.length">
         <div
-          v-for="training in programTrainings"
-          :key="`${training.id}-${training.day ?? training.name}`"
+          v-for="daySchedule in programTrainings"
+          :key="`day-${daySchedule.day}`"
           class="card stack"
         >
           <div class="stack-sm">
-            <h4>{{ training.name }}</h4>
-            <p class="muted">
-              День {{ training.day ?? '—' }} · {{ training.exercises?.length ?? 0 }}
-              упражнений
+            <h4>День {{ daySchedule.day }}</h4>
+            <p v-if="daySchedule.training" class="muted">
+              {{ daySchedule.training.name }} · 
+              {{ daySchedule.training.exercises?.length ?? 0 }} упражнений
             </p>
+            <p v-else class="muted">Выходной день</p>
           </div>
-          <div class="nav-links">
-            <RouterLink :to="`/trainings/${training.id}/start`">
+          <div class="nav-links" v-if="daySchedule.training">
+            <RouterLink :to="`/app/trainings/${daySchedule.training.id}/start`">
               Запустить
             </RouterLink>
-            <button class="ghost" @click="detach(training)">Удалить</button>
+            <RouterLink :to="`/app/trainings?edit=${daySchedule.training.id}`">
+              Редактировать
+            </RouterLink>
+            <button class="ghost" @click="detach(daySchedule)">Удалить</button>
+          </div>
+          <div class="nav-links" v-else>
+            <button class="ghost" @click="detach(daySchedule)">Удалить день отдыха</button>
           </div>
         </div>
       </div>
@@ -67,7 +91,7 @@
 </template>
 
 <script setup>
-import { onMounted, reactive, watch } from 'vue';
+import { computed, onMounted, reactive, watch } from 'vue';
 import { useRoute } from 'vue-router';
 import { storeToRefs } from 'pinia';
 import { useProgramsStore } from '@/stores/programs';
@@ -76,13 +100,19 @@ import { useTrainingsStore } from '@/stores/trainings';
 const route = useRoute();
 const programsStore = useProgramsStore();
 const trainingsStore = useTrainingsStore();
-const { current: program, currentTrainings: programTrainings } =
+const { current: program, currentTrainings: programTrainingsRaw } =
   storeToRefs(programsStore);
 const { items: trainings } = storeToRefs(trainingsStore);
+
+// Сортируем тренировки по дням
+const programTrainings = computed(() => {
+  return [...programTrainingsRaw.value].sort((a, b) => a.day - b.day);
+});
 
 const form = reactive({
   day: '',
   trainingId: '',
+  isRestDay: false,
 });
 
 const load = async () => {
@@ -106,21 +136,96 @@ const handleAttach = async () => {
   await programsStore.addTraining({
     programId: id,
     day: Number(form.day),
-    trainingId: Number(form.trainingId),
+    trainingId: form.isRestDay ? null : Number(form.trainingId),
   });
   form.day = '';
   form.trainingId = '';
+  form.isRestDay = false;
 };
 
-const detach = async (training) => {
+const detach = async (daySchedule) => {
   const id = Number(route.params.id);
-  const day = training.day ?? Number(prompt('Укажите день тренировки'));
+  const day = daySchedule.day;
   if (!day) return;
   await programsStore.removeTraining({
     programId: id,
     day,
-    trainingId: training.id,
+    trainingId: daySchedule.training?.id ?? null,
   });
 };
+
+const hasTrainingOnDay = (day) => {
+  return programTrainings.value.some(
+    (schedule) => schedule.day === day && schedule.training !== null,
+  );
+};
+
+const isRestDay = (day) => {
+  return programTrainings.value.some(
+    (schedule) => schedule.day === day && schedule.training === null,
+  );
+};
 </script>
+
+<style scoped>
+.calendar {
+  display: grid;
+  grid-template-columns: repeat(10, 1fr);
+  gap: 0.5rem;
+  padding: 1rem;
+  background: #f9fafb;
+  border-radius: 0.5rem;
+  border: 1px solid #e5e7eb;
+}
+
+.calendar-day {
+  aspect-ratio: 1;
+  border: 2px solid #e5e7eb;
+  background: white;
+  border-radius: 0.375rem;
+  cursor: pointer;
+  font-weight: 500;
+  transition: all 0.2s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.875rem;
+  color: #000000;
+}
+
+.calendar-day:hover {
+  border-color: #3b82f6;
+  background: #eff6ff;
+  transform: scale(1.05);
+}
+
+.calendar-day--selected {
+  background: #3b82f6;
+  color: white;
+  border-color: #3b82f6;
+  font-weight: 600;
+}
+
+.calendar-day--has-training {
+  border-color: #10b981;
+  background: #ecfdf5;
+  color: #000000;
+}
+
+.calendar-day--has-training.calendar-day--selected {
+  background: #10b981;
+  color: white;
+}
+
+.calendar-day--rest-day {
+  border-color: #f59e0b;
+  background: #fffbeb;
+  color: #000000;
+}
+
+.calendar-day--rest-day.calendar-day--selected {
+  background: #f59e0b;
+  color: white;
+}
+</style>
 

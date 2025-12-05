@@ -2,11 +2,6 @@
   <section class="card auth-card stack">
     <div class="stack-sm">
       <h2>{{ isSignUp ? 'Регистрация' : 'Вход' }}</h2>
-      <p class="muted">
-        Используйте логин и пароль для {{ isSignUp ? 'создания нового' : 'входа в' }}
-        аккаунта. Успешная авторизация сохранит JWT в LocalStorage и будет автоматически
-        подставлять заголовки <code>X-User-Login</code> и <code>Authorization</code>.
-      </p>
     </div>
 
     <div class="nav-links">
@@ -86,7 +81,7 @@ const handleSubmit = async () => {
     } else {
       await auth.signIn(form);
     }
-    const redirect = route.query.redirect ?? '/programs';
+    const redirect = route.query.redirect ?? '/app/programs';
     router.push(redirect);
   } catch {
     // ошибки отображаются из стора

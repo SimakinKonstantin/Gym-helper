@@ -12,21 +12,35 @@ type CreateProgramReq struct {
 
 type AddTrainingToProgramReq struct {
 	ProgramId  int64  `json:"program_id"`
-	TrainingId *int64 `json:"training"`
+	TrainingId *int64 `json:"training_id"`
 	Day        int64  `json:"day"`
 }
 
 type DeleteTrainingToProgramReq struct {
 	ProgramId  int64  `json:"program_id"`
-	TrainingId *int64 `json:"training"`
+	TrainingId *int64 `json:"training_id"`
 	Day        int64  `json:"day"`
 }
 
 // Программа тренировок.
 type ProgramDb struct {
-	Id        int64  `db:"id" json:"id"`
-	UserLogin string `db:"user_login" json:"user_login"`
-	Name      string `db:"name" json:"name"`
+	Id        int64      `db:"id" json:"id"`
+	UserLogin string     `db:"user_login" json:"user_login"`
+	Name      string     `db:"name" json:"name"`
+	Trainings TrainingDb `db:"trainings" json:"trainings"`
+}
+
+// Содержит информацию о тренировке и дне этой тренировки.
+type TrainingDayDb struct {
+	Day       int64          `db:"day"`
+	Id        *int64         `db:"id"`
+	Name      *string        `db:"name"`
+	Exercises *ExercisesJSON `db:"exercises"`
+}
+
+type ProgramTrainingDb struct {
+	Day      int64       `json:"day"`
+	Training *TrainingDb `json:"training"`
 }
 
 // Тренировка.

@@ -1,0 +1,29 @@
+@startuml
+'https://plantuml.com/class-diagram'
+
+
+class App {
+    +db : *Database
+    
+    +Init()
+    +SignUp(w : http.ResponseWriter, r : *http.Request)
+    +SignIn(w : http.ResponseWriter, r : *http.Request)
+    +CreateServer(addr : string) : *http.Server
+    +buildToken(login : string) : (string, error)
+    +hashPassword(password : string) : (string, error)
+    +checkPasswordHash(password : string, hash : string) : bool
+}
+
+class Database {
+    +Db : *sqlx.DB
+    
+    +NewDatabase(db : *sqlx.DB) : *Database
+    +InitDb(): error
+    +AddUser(login : string, hash : string) : error
+    +GetUser(login : string) : (UserDb, error)
+}
+
+App *-- Database
+
+
+@enduml

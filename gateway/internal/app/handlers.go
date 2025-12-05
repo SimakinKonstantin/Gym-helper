@@ -1,7 +1,9 @@
 package app
 
 import (
+	"coursework_gateway/metrics"
 	"encoding/json"
+	"fmt"
 	"log/slog"
 	"net/http"
 	"net/http/httputil"
@@ -19,18 +21,27 @@ func (app *App) forwardManage(w http.ResponseWriter, r *http.Request) {
 	forwardReq(w, r, newUrl)
 }
 
-func (app *App) startTraining(w http.ResponseWriter, r *http.Request) {
-	var input ProcessStatsInput
+func (app *App) forwardStatistics(w http.ResponseWriter, r *http.Request) {
+	newUrl, _ := url.Parse(os.Getenv("STATISTICS_SERVICE_URL"))
+	forwardReq(w, r, newUrl)
+}
+
+func (app *App) processTraining(w http.ResponseWriter, r *http.Request) {
+	var input ProcessTrainingInput
 	err := json.NewDecoder(r.Body).Decode(&input)
 	if err != nil {
 		w.WriteHeader(http.StatusBadRequest)
 		slog.Error("Не удалось получить значение request", err.Error())
+		metrics.ErrorMetrics.Inc()
 		return
 	}
+
+	slog.Info(fmt.Sprintf("Отправили сообщение в Kafka: %+v", input))
 
 	if err := app.Write(input); err != nil {
 		w.WriteHeader(http.StatusBadRequest)
 		slog.Error("Не удалось записать сообщение в kafka", err.Error())
+		metrics.ErrorMetrics.Inc()
 		return
 	}
 
@@ -38,9 +49,6 @@ func (app *App) startTraining(w http.ResponseWriter, r *http.Request) {
 }
 
 func forwardReq(w http.ResponseWriter, r *http.Request, newUrl *url.URL) {
-	// Обрезаем, чтобы получить независимый от base url.
-	//cutFrom := len("gateway/")
-	//r.URL.Path = r.URL.Path[cutFrom:]
 	proxy := httputil.NewSingleHostReverseProxy(newUrl)
 	proxy.ServeHTTP(w, r)
 }

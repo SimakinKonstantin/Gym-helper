@@ -1,0 +1,19 @@
+@startuml
+'https://plantuml.com/class-diagram'
+
+
+class App {
+    +producer : *kafka.Writer
+
+    +CreateServer(addr : string) : *http.Server
+    +Write(value : ProcessTrainingInput) : error
+    +forwardAuth(w : http.ResponseWriter, r : *http.Request)
+    +forwardManage(w : http.ResponseWriter, r : *http.Request)
+    +forwardStatistics(w : http.ResponseWriter, r : *http.Request)
+    +processTraining(w : http.ResponseWriter, r : *http.Request)
+    +authMiddleware(next : http.Handler) : http.Handler
+    +checkToken(token : string) : (string, error)
+    +forwardReq(w : http.ResponseWriter, r : *http.Request, newUrl : *url.URL)
+}
+
+@enduml

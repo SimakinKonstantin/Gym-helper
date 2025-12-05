@@ -1,0 +1,51 @@
+@startuml
+'https://plantuml.com/class-diagram'
+
+class App {
+    +db : *Database
+    +consumer: *Consumer
+    +statsProcessor: *StatsProcessor
+
+    +NewApp(db : *Database) : *App
+    +CreateServer(addr : string) : *http.Server
+    +GetResults(w : http.ResponseWriter, r : *http.Request)
+    +GetResult(w : http.ResponseWriter, r : *http.Request)
+    +GetResults(w : http.ResponseWriter, r : *http.Request)
+    +GetResult(w : http.ResponseWriter, r : *http.Request)
+    +ProcessStats(input : ProcessStatsInput) : error
+    +saveStats(stats : ProcessStatsInput) : (int64, error)
+    +updateStats(id : int64, userLogin : string, cal : int32, goodSet : int, badSet : int) : error
+}
+
+class Consumer {
+    +conn : *kafka.Reader
+    +app : *App
+    
+    +NewConsumer(conn : *kafka.Reader, app : *App) : *Consumer
+    +Listen()
+}
+
+class Database {
+    +Db : *sqlx.DB
+    
+    +NewDatabase(db : *sqlx.DB) : *Database
+    +GetAllResults(login : string) : ([]TrainingResultDb, error)
+    +GetResultById(login : string, id : int64) : (TrainingResultDb, error)
+    +SaveBeforeProcessing(stats : ProcessStatsInput) : (int64, error)
+    +SaveKcal(login : string, id : int64, kcal : int32) : error
+    +SaveComment(login : string, id : int64, comment : string) : error
+    +SetProcessedStatus(login : string, id : int64, statusName : string) : error
+}
+
+class StatsProcessor {
+    +calculateCal(calPerSet : int32, reps : int32) : int32
+    +getSetsCount(training : ResultsJSON) : int
+    +generateComment(goodSet : int, badSet : int) : string
+    +processError(err : error, w : http.ResponseWriter, statusCode : int)
+}
+
+App *-- Database
+App *-- Consumer
+App *-- StatsProcessor
+
+@enduml

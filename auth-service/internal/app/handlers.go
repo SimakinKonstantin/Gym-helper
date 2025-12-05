@@ -2,6 +2,7 @@ package app
 
 import (
 	"cousework_auth/internal"
+	"cousework_auth/internal/metrics"
 	"database/sql"
 	"encoding/json"
 	"errors"
@@ -23,37 +24,47 @@ import (
 // @Failure      409 {string} string "Пользователь с таким логином уже существует"
 // @Router       /sign-up [post]
 func (app *App) SignUp(w http.ResponseWriter, r *http.Request) {
+	start := time.Now()
+	statusCode := http.StatusOK
+
+	defer func() {
+		metrics.ObserveRequest(time.Since(start), statusCode)
+	}()
+
 	var input internal.SignUpReq
 	if err := json.NewDecoder(r.Body).Decode(&input); err != nil {
-		processError(fmt.Errorf("ошибка анмаршаллинга запроса в SignUp: %w", err), http.StatusBadRequest, w)
+		statusCode = http.StatusBadRequest
+		processError(fmt.Errorf("ошибка анмаршаллинга запроса в SignUp: %w", err), statusCode, w)
 		return
 	}
 
 	user, err := app.db.GetUser(input.Login)
 	if err != nil && !errors.Is(err, sql.ErrNoRows) {
-		processError(fmt.Errorf("ошибка получения пользователя из БД в SignUp: %w", err), http.StatusBadRequest, w)
+		statusCode = http.StatusBadRequest
+		processError(fmt.Errorf("ошибка получения пользователя из БД в SignUp: %w", err), statusCode, w)
 		return
 	}
 
 	// Проверка, что в БД нашли пользователя с таким логином.
 	if user.Login != "" {
-		processError(fmt.Errorf("попытка зарегестрироваться с уже занятым логином: %w", err), http.StatusConflict, w)
+		statusCode = http.StatusConflict
+		processError(fmt.Errorf("попытка зарегестрироваться с уже занятым логином: %w", err), statusCode, w)
 		return
 	}
 
 	// Кладем в БД логин, хеш
 	hash, err := hashPassword(input.Password)
 	if err != nil {
-		processError(fmt.Errorf("ошибка формирования хеша в SignUp: %w", err), http.StatusBadRequest, w)
+		statusCode = http.StatusBadRequest
+		processError(fmt.Errorf("ошибка формирования хеша в SignUp: %w", err), statusCode, w)
 		return
 	}
 
 	if err := app.db.AddUser(input.Login, hash); err != nil {
-		processError(fmt.Errorf("ошибка сохранения пользователя в БД в SignUp: %w", err), http.StatusBadRequest, w)
+		statusCode = http.StatusBadRequest
+		processError(fmt.Errorf("ошибка сохранения пользователя в БД в SignUp: %w", err), statusCode, w)
 		return
 	}
-
-	w.WriteHeader(http.StatusOK)
 }
 
 // @Summary      Войти
@@ -65,31 +76,43 @@ func (app *App) SignUp(w http.ResponseWriter, r *http.Request) {
 // @Failure      401 {string} string "Неверный логин или пароль"
 // @Router       /sign-in [post]
 func (app *App) SignIn(w http.ResponseWriter, r *http.Request) {
+	start := time.Now()
+	statusCode := http.StatusOK
+
+	defer func() {
+		metrics.ObserveRequest(time.Since(start), statusCode)
+	}()
+
 	var input internal.SignInReq
 	if err := json.NewDecoder(r.Body).Decode(&input); err != nil {
-		processError(fmt.Errorf("ошибка анмаршаллинга запроса в SignIn: %w", err), http.StatusBadRequest, w)
+		statusCode = http.StatusBadRequest
+		processError(fmt.Errorf("ошибка анмаршаллинга запроса в SignIn: %w", err), statusCode, w)
 		return
 	}
 
 	user, err := app.db.GetUser(input.Login)
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
-			processError(fmt.Errorf("такого пользователя не существует в SignIn: %w", err), http.StatusUnauthorized, w)
+			statusCode = http.StatusUnauthorized
+			processError(fmt.Errorf("такого пользователя не существует в SignIn: %w", err), statusCode, w)
 			return
 		}
 
-		processError(fmt.Errorf("ошибка получения пользователя из БД в SignIn: %w", err), http.StatusBadRequest, w)
+		statusCode = http.StatusBadRequest
+		processError(fmt.Errorf("ошибка получения пользователя из БД в SignIn: %w", err), statusCode, w)
 		return
 	}
 
 	if !checkPasswordHash(input.Password, user.Hash) {
-		processError(fmt.Errorf("неверный логин или пароль в SignIn: %w", err), http.StatusUnauthorized, w)
+		statusCode = http.StatusUnauthorized
+		processError(fmt.Errorf("неверный логин или пароль в SignIn: %w", err), statusCode, w)
 		return
 	}
 
 	token, err := buildToken(input.Login)
 	if err != nil {
-		processError(fmt.Errorf("ошибка получения токена в SignIn: %w", err), http.StatusBadRequest, w)
+		statusCode = http.StatusBadRequest
+		processError(fmt.Errorf("ошибка получения токена в SignIn: %w", err), statusCode, w)
 		return
 	}
 
@@ -98,12 +121,14 @@ func (app *App) SignIn(w http.ResponseWriter, r *http.Request) {
 	}
 	marshalledResp, err := json.Marshal(resp)
 	if err != nil {
-		processError(fmt.Errorf("ошибка маршаллинга ответа в SignIn: %w", err), http.StatusBadRequest, w)
+		statusCode = http.StatusBadRequest
+		processError(fmt.Errorf("ошибка маршаллинга ответа в SignIn: %w", err), statusCode, w)
 		return
 	}
 
 	if _, err = w.Write(marshalledResp); err != nil {
-		processError(fmt.Errorf("ошибка записи ответа в SignIn: %w", err), http.StatusBadRequest, w)
+		statusCode = http.StatusBadRequest
+		processError(fmt.Errorf("ошибка записи ответа в SignIn: %w", err), statusCode, w)
 		return
 	}
 }
@@ -125,6 +150,7 @@ func buildToken(login string) (string, error) {
 func processError(err error, statusCode int, w http.ResponseWriter) {
 	slog.Error(err.Error())
 	w.WriteHeader(statusCode)
+	metrics.ErrorMetrics.Inc()
 }
 
 func hashPassword(password string) (string, error) {

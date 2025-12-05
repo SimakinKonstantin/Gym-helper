@@ -32,7 +32,7 @@
           <h4>{{ program.name }}</h4>
           <p class="muted">ID: {{ program.id }}</p>
           <div class="nav-links">
-            <RouterLink :to="`/programs/${program.id}`">Открыть</RouterLink>
+            <RouterLink :to="`/app/programs/${program.id}`">Открыть</RouterLink>
             <button class="ghost" @click="remove(program.id)">Удалить</button>
           </div>
         </div>

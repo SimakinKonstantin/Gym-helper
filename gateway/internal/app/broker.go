@@ -7,7 +7,7 @@ import (
 	"github.com/segmentio/kafka-go"
 )
 
-func (app *App) Write(value ProcessStatsInput) error {
+func (app *App) Write(value ProcessTrainingInput) error {
 	marshalled, err := json.Marshal(value)
 	if err != nil {
 		return fmt.Errorf("Ошибка отправки в kafka")

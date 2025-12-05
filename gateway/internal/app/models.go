@@ -6,8 +6,8 @@ import (
 	"time"
 )
 
-type ProcessStatsInput struct {
-	Id           int64       `json:"id"`
+type ProcessTrainingInput struct {
+	Id           int64       `json:"training_id"`
 	UserLogin    string      `json:"user_login"`
 	StartTime    time.Time   `json:"start_time"`
 	FinishTime   time.Time   `json:"finish_time"`
@@ -17,15 +17,15 @@ type ProcessStatsInput struct {
 type ResultsJSON []Exercise
 
 type Exercise struct {
-	Name      string `json:"name"`
-	Sets      []Set  `json:"sets"`
-	CalPerSet int32  `json:"cal_per_set"`
+	Name string `json:"name"`
+	Sets []Set  `json:"sets"`
 }
 
 type Set struct {
 	Weight       float64 `json:"weight"`
 	OriginalReps int64   `json:"original_reps"`
 	RealReps     int64   `json:"real_reps"`
+	CalPerSet    int32   `json:"cal_per_set"`
 }
 
 func (e *ResultsJSON) Scan(src interface{}) error {

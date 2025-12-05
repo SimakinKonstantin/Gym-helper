@@ -1,0 +1,14 @@
+@startuml
+!include https://raw.githubusercontent.com/plantuml-stdlib/C4-PlantUML/master/C4_Context.puml
+
+title Уровень Context
+
+LAYOUT_LEFT_RIGHT()
+
+Person(user, "User", "Тренирующийся, пользователь системы")
+System(system, "Training System", "Программный комплекс составления программ спортивных тренировок")
+
+Rel(user, system, "Работает с тренировками")
+
+SHOW_LEGEND()
+@enduml

@@ -2,9 +2,6 @@
 <project version="4">
   <component name="VcsDirectoryMappings">
     <mapping directory="$PROJECT_DIR$" vcs="Git" />
-    <mapping directory="$PROJECT_DIR$/coursework_gateway" vcs="Git" />
-    <mapping directory="$PROJECT_DIR$/cousework" vcs="Git" />
-    <mapping directory="$PROJECT_DIR$/cousework_auth" vcs="Git" />
     <mapping directory="$PROJECT_DIR$/statistics-service" vcs="Git" />
   </component>
 </project>

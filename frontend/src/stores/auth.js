@@ -57,7 +57,12 @@ export const useAuthStore = defineStore('auth', {
         const { token } = await signIn(payload);
         this.setSession({ login: payload.login, token });
       } catch (err) {
-        this.error = err?.response?.data ?? 'Не удалось войти';
+        // Если статус 401, показываем специальное сообщение
+        if (err?.response?.status === 401) {
+          this.error = 'Неверный логин или пароль';
+        } else {
+          this.error = err?.response?.data ?? 'Не удалось войти';
+        }
         throw err;
       } finally {
         this.loading = false;

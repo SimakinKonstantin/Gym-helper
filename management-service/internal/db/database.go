@@ -7,6 +7,7 @@ import (
 	_ "embed"
 	"errors"
 	"fmt"
+
 	"github.com/jmoiron/sqlx"
 	"github.com/pressly/goose/v3"
 )
@@ -116,9 +117,9 @@ func (r *Database) TrainingCreate(training internal.TrainingDb) error {
 	return nil
 }
 
-func (r *Database) TrainingGetById(id int64, login string) (internal.TrainingDb, error) {
+func (r *Database) TrainingGetById(id int64) (internal.TrainingDb, error) {
 	var res internal.TrainingDb
-	if err := r.Db.Get(&res, getTrainingByIdSql, id, login); err != nil && !errors.Is(err, sql.ErrNoRows) {
+	if err := r.Db.Get(&res, getTrainingByIdSql, id); err != nil && !errors.Is(err, sql.ErrNoRows) {
 		return internal.TrainingDb{}, fmt.Errorf("ошибка получения тренировки из БД: %w", err)
 	}
 
@@ -143,16 +144,39 @@ func (r *Database) TrainingsGetByUserLogin(login string) ([]internal.TrainingDb,
 	return trainings, nil
 }
 
-func (r *Database) GetProgramTrainings(programId int64, login string) ([]internal.TrainingDb, error) {
-	var res []internal.TrainingDb
+func (r *Database) GetProgramTrainings(programId int64) ([]internal.ProgramTrainingDb, error) {
+	var trainingDays []internal.TrainingDayDb
 
 	var err error
-	if err = r.Db.Get(&res, getProgramTrainingSql, programId, login); err != nil && !errors.Is(err, sql.ErrNoRows) {
+	if err = r.Db.Select(&trainingDays, getProgramTrainingSql, programId); err != nil && !errors.Is(err, sql.ErrNoRows) {
 		return nil, fmt.Errorf("ошибка получения тренировок для программы тренировок из БД: %w", err)
 	}
 
 	if errors.Is(err, sql.ErrNoRows) {
 		return nil, nil
+	}
+
+	fmt.Println("trainingDays = ", trainingDays)
+
+	// Формируем из вида который хранился в БД новую форму, которая будет использоваться для вывода.
+	res := make([]internal.ProgramTrainingDb, len(trainingDays))
+	for i, v := range trainingDays {
+		program := internal.ProgramTrainingDb{
+			Day: v.Day,
+		}
+
+		if v.Id == nil || v.Name == nil || v.Exercises == nil {
+			program.Training = nil
+
+		} else {
+			program.Training = &internal.TrainingDb{
+				Id:        *v.Id,
+				Name:      *v.Name,
+				Exercises: *v.Exercises,
+			}
+		}
+
+		res[i] = program
 	}
 
 	return res, nil

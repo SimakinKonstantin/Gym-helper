@@ -1,10 +1,8 @@
-# TODO создание БД для postgres. Общая проверка работоспособности
-
 name: training-app
 services:
   gateway:
     build:
-      context: ../gateway/coursework_gateway
+      context: gateway
     ports:
       - "8080:8080"
     depends_on:
@@ -16,6 +14,7 @@ services:
     environment:
       - AUTH_SERVICE_URL=http://auth-service:8081
       - MANAGEMENT_SERVICE_URL=http://management-service:8082
+      - STATISTICS_SERVICE_URL=http://statistics-service:8083
       - KAFKA_TOPIC=statistics
       - KAFKA_ADDR=kafka:9092
 
@@ -155,6 +154,31 @@ services:
       - POSTGRES_PASSWORD=postgres
       - POSTGRES_DB=management
 
+  prometheus:
+    image: prom/prometheus:latest
+    attach: false
+    ports:
+      - "9090:9090"
+    volumes:
+      - ./prometheus/prometheus.yml:/etc/prometheus/prometheus.yml
+    networks:
+      - app-network
+
+  grafana:
+    image: grafana/grafana-oss:latest
+    attach: false
+    depends_on:
+      - prometheus
+    ports:
+      - "3000:3000"
+    environment:
+      - GF_SECURITY_ADMIN_PASSWORD=admin
+    networks:
+      - app-network
+    volumes:
+      - grafana_:/var/lib/grafana
+
+
 networks:
   app-network:
     driver: bridge
@@ -164,4 +188,6 @@ volumes:
   postgres_management_:
   postgres_auth_:
   postgres_statistics_:
+  grafana_:
+
 

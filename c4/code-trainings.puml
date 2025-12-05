@@ -1,0 +1,42 @@
+@startuml
+'https://plantuml.com/class-diagram'
+
+class App {
+    +db : *Database
+
+    +Init()
+    +CreateServer(addr : string) : *http.Server
+    +GetProgram(w : http.ResponseWriter, r : *http.Request)
+    +CreateProgram(w : http.ResponseWriter, r : *http.Request)
+    +DeleteProgram(w : http.ResponseWriter, r : *http.Request)
+    +GetTraining(w : http.ResponseWriter, r : *http.Request)
+    +CreateTraining(w : http.ResponseWriter, r : *http.Request)
+    +UpdateTraining(w : http.ResponseWriter, r : *http.Request)
+    +DeleteTraining(w : http.ResponseWriter, r : *http.Request)
+    +GetProgramTrainings(w : http.ResponseWriter, r : *http.Request)
+    +AddTrainingToProgram(w : http.ResponseWriter, r : *http.Request)
+    +DeleteTrainingToProgram(w : http.ResponseWriter, r : *http.Request)
+}
+
+class Database {
+    +Db : *sqlx.DB
+    
+    +NewDatabase(db : *sqlx.DB) : *Database
+    +InitDb() : error
+    +ProgramCreate(program : ProgramDb) : error
+    +ProgramGetById(id : int64, login : string) : (ProgramDb, error)
+    +ProgramsGetByUserLogin(login : string) : ([]ProgramDb, error)
+    +ProgramDeleteById(id : int64, login : string) : error
+    +TrainingCreate(training : TrainingDb) : error
+    +TrainingGetById(id : int64) : (TrainingDb, error)
+    +TrainingsGetByUserLogin(login : string) : ([]TrainingDb, error)
+    +TrainingDeleteById(id : int64, login : string) : error
+    +UpdateTraining(id : int64, training : TrainingDb) : error
+    +GetProgramTrainings(programId : int64) : ([]ProgramTrainingDb, error)
+    +AddProgramTrainings(programId : int64, trainingId : *int64, day : int64) : error
+    +DeleteProgramTrainings(programId : int64, trainingId : *int64, day : int64) : error
+}
+
+App *-- Database
+
+@enduml
