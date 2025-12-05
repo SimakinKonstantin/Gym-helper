@@ -1,0 +1,1 @@
+SELECT id, name FROM statuses WHERE name=$1;
