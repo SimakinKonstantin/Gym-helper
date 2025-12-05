@@ -4,7 +4,6 @@
 class App {
     +db : *Database
     +consumer: *Consumer
-    +statsProcessor: *StatsProcessor
 
     +NewApp(db : *Database) : *App
     +CreateServer(addr : string) : *http.Server
@@ -15,6 +14,10 @@ class App {
     +ProcessStats(input : ProcessStatsInput) : error
     +saveStats(stats : ProcessStatsInput) : (int64, error)
     +updateStats(id : int64, userLogin : string, cal : int32, goodSet : int, badSet : int) : error
+    +calculateCal(calPerSet : int32, reps : int32) : int32
+    +getSetsCount(training : ResultsJSON) : int
+    +generateComment(goodSet : int, badSet : int) : string
+    +processError(err : error, w : http.ResponseWriter, statusCode : int)
 }
 
 class Consumer {
@@ -37,15 +40,7 @@ class Database {
     +SetProcessedStatus(login : string, id : int64, statusName : string) : error
 }
 
-class StatsProcessor {
-    +calculateCal(calPerSet : int32, reps : int32) : int32
-    +getSetsCount(training : ResultsJSON) : int
-    +generateComment(goodSet : int, badSet : int) : string
-    +processError(err : error, w : http.ResponseWriter, statusCode : int)
-}
-
 App *-- Database
 App *-- Consumer
-App *-- StatsProcessor
 
 @enduml

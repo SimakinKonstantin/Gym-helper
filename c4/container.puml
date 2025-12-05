@@ -14,7 +14,7 @@ System_Boundary(s1, "Система сохранения программ тре
 	Container(ui, "Frontend", "Vue.js", "Пользовательский интерфейс приложения")
 	ContainerDb(statisticsDb,  "БД сервиса статистики", "PostgreSQL", "Хранение статистики тренировок")
     ContainerDb(usersDb, "БД сервиса аутентификации", "PostgreSQL",  "Хранение пользователей")
-    ContainerDb(managementDb, "БД сервиса тренировок", "PostgreSQL",  "Хранений тренировок")
+    ContainerDb(managementDb, "БД сервиса тренировок", "PostgreSQL",  "Хранение тренировок")
 }
 
 Rel(user, grafana, Просматривает метрики)

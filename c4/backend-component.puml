@@ -17,7 +17,7 @@ Container_Boundary(backend, "Backend") {
 
 Component(statisticsDb,  "БД сервиса статистики", "PostgreSQL", "Хранение статистики тренировок")
 Component(usersDb, "БД сервиса аутентификации", "PostgreSQL",  "Хранение пользователей")
-Component(managementDb, "БД сервиса тренировок", "PostgreSQL",  "Хранений тренировок")
+Component(managementDb, "БД сервиса тренировок", "PostgreSQL",  "Хранение тренировок")
 
 Rel(frontend, gateway, "Отправляет запросы", "HTTP")
 
