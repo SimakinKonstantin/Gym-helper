@@ -110,6 +110,7 @@ button:hover {
 input,
 select,
 textarea {
+  box-sizing: border-box;
   width: 100%;
   margin-top: 4px;
   padding: 10px 12px;

@@ -423,6 +423,22 @@ const handleFinish = async () => {
   width: 100%;
 }
 
+.checkbox-inline {
+  display: inline-flex;
+  align-items: center;
+  align-self: end;
+  gap: 0.5rem;
+  white-space: nowrap;
+}
+
+.checkbox-inline input[type='checkbox'] {
+  width: 1rem;
+  height: 1rem;
+  margin: 0;
+  padding: 0;
+  flex: 0 0 auto;
+}
+
 .nav-links.wrap {
   flex-wrap: wrap;
   gap: 0.5rem;
