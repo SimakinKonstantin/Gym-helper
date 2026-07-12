@@ -12,19 +12,6 @@ import (
 	"os"
 )
 
-// @title Auth-Service
-// @version 2.0
-// @description Сервис аутентификации
-// @termsOfService http://swagger.io/terms/
-
-// @contact.name API Support
-// @contact.url http://www.swagger.io/support
-// @contact.email support@swagger.io
-
-// @license.name Apache 2.0
-// @license.url http://www.apache.org/licenses/LICENSE-2.0.html
-
-// @host localhost:8082
 func main() {
 	database, err := initDb()
 	if err != nil {

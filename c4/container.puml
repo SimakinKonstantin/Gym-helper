@@ -1,6 +1,5 @@
 @startuml
-!include https://raw.githubusercontent.com/plantuml-stdlib/C4-PlantUML/master/C4_Container.puml
-
+!include <C4/C4_Container>
 title Уровень Container
 
 LAYOUT_LEFT_RIGHT()
@@ -12,17 +11,17 @@ System_Boundary(s1, "Система сохранения программ тре
     Container(prometheus, "Сервис сбора метрик", "Prometheus", "Собирает метрики для мониторинга приложения")
 	Container(grafana, "Сервис отображания метрик", "Grafana", "Отображает метрики")
 	Container(ui, "Frontend", "Vue.js", "Пользовательский интерфейс приложения")
-	ContainerDb(statisticsDb,  "БД сервиса статистики", "PostgreSQL", "Хранение статистики тренировок")
-    ContainerDb(usersDb, "БД сервиса аутентификации", "PostgreSQL",  "Хранение пользователей")
-    ContainerDb(managementDb, "БД сервиса тренировок", "PostgreSQL",  "Хранение тренировок")
+	' ContainerDb(statisticsDb,  "БД сервиса статистики", "PostgreSQL", "Хранение статистики тренировок")
+    ' ContainerDb(usersDb, "БД сервиса аутентификации", "PostgreSQL",  "Хранение пользователей")
+    ' ContainerDb(managementDb, "БД сервиса тренировок", "PostgreSQL",  "Хранение тренировок")
 }
 
 Rel(user, grafana, Просматривает метрики)
 Rel(user, ui, "Работает с программами тренировок", )
 Rel(ui, api, "Отправляет запросы", "HTTP")
-Rel(api, statisticsDb, "Работает с данными статистики", "TCP")
-Rel(api, usersDb, "Работает с данными пользователей", "TCP")
-Rel(api, managementDb, "Работает с данными тренировок", "TCP")
+' Rel(api, statisticsDb, "Работает с данными статистики", "TCP")
+' Rel(api, usersDb, "Работает с данными пользователей", "TCP")
+' Rel(api, managementDb, "Работает с данными тренировок", "TCP")
 
 Rel(grafana, prometheus, "Запрашивает метрики для отображения", "HTTP")
 Rel(prometheus, api, "Собирает метрики", "HTTP")

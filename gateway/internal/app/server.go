@@ -16,7 +16,6 @@ func (app *App) CreateServer(addr string) *http.Server {
 	router.HandleFunc("/sign-in", app.forwardAuth).Methods(http.MethodPost)
 	router.HandleFunc("/sign-up", app.forwardAuth).Methods(http.MethodPost)
 
-	//router.Handle("/programs/{id}", authMiddleware(http.HandlerFunc(app.forwardManage))).Methods(http.MethodGet)
 	router.Handle("/programs", authMiddleware(http.HandlerFunc(app.forwardManage))).Methods(http.MethodGet)
 	router.Handle("/programs", authMiddleware(http.HandlerFunc(app.forwardManage))).Methods(http.MethodPost)
 	router.Handle("/programs/{id}", authMiddleware(http.HandlerFunc(app.forwardManage))).Methods(http.MethodDelete)

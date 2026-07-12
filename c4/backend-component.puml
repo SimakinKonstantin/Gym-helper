@@ -1,5 +1,5 @@
 @startuml
-!include https://raw.githubusercontent.com/plantuml-stdlib/C4-PlantUML/master/C4_Component.puml
+!include <C4/C4_Component>
 
 title Backend - Уровень Component
 
@@ -12,12 +12,17 @@ Container_Boundary(backend, "Backend") {
     Component(authService, "Auth Service", "Golang", "Сервис аутентификации и авторизации")
     Component(managementService, "Management Service", "Golang", "Сервис управления программами и тренировками")
     Component(statisticsService, "Statistics Service", "Golang", "Сервис обработки и хранения статистики тренировок")
-    ContainerQueue(kafka, "Очередь на подтверждение программ тренировок", "Kafka", "Передает программу тренировок до пользователя для подтверждения")
+
+    ComponentDb(statisticsDb,  "БД сервиса статистики", "PostgreSQL", "Хранение статистики тренировок")
+    ComponentDb(usersDb, "БД сервиса аутентификации", "PostgreSQL",  "Хранение пользователей")
+    ComponentDb(managementDb, "БД сервиса тренировок", "PostgreSQL",  "Хранение тренировок")
+
+    ComponentQueue(kafka, "Очередь на подтверждение программ тренировок", "Kafka", "Передает программу тренировок до пользователя для подтверждения")
 }
 
-Component(statisticsDb,  "БД сервиса статистики", "PostgreSQL", "Хранение статистики тренировок")
-Component(usersDb, "БД сервиса аутентификации", "PostgreSQL",  "Хранение пользователей")
-Component(managementDb, "БД сервиса тренировок", "PostgreSQL",  "Хранение тренировок")
+' Component(statisticsDb,  "БД сервиса статистики", "PostgreSQL", "Хранение статистики тренировок")
+' Component(usersDb, "БД сервиса аутентификации", "PostgreSQL",  "Хранение пользователей")
+' Component(managementDb, "БД сервиса тренировок", "PostgreSQL",  "Хранение тренировок")
 
 Rel(frontend, gateway, "Отправляет запросы", "HTTP")
 
