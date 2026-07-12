@@ -52,8 +52,6 @@ func main() {
 func initDb() (*sqlx.DB, error) {
 	db, err := sqlx.Connect("postgres", os.Getenv("DATABASE_URL"))
 
-	fmt.Println("DATABASE_URL: ", os.Getenv("DATABASE_URL"))
-
 	if err != nil {
 		return nil, fmt.Errorf("Ошибка коннекта к БД: %w", err)
 	}
