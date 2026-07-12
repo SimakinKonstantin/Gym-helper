@@ -9,6 +9,5 @@ COPY . .
 
 RUN CGO_ENABLED=0 GOOS=linux go build -o main .
 
-# Убираем runtime-стадию, оставляем builder
 EXPOSE 8083
 CMD ["./main"]
