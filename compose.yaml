@@ -177,6 +177,8 @@ services:
       - app-network
     volumes:
       - grafana_:/var/lib/grafana
+      - ./grafana/provisioning:/etc/grafana/provisioning:ro
+      - ./grafana/dashboards:/var/lib/grafana/dashboards:ro
 
 
 networks:
