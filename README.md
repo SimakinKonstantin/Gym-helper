@@ -1,7 +1,7 @@
 **Система управления программами тренировок**
 ===
 
-Позволяет управлять планом тренировок.
+Позволяет составлять план тренировок, запускать тренировки, а также вести историю проведенных тренировок для анализа прогресса.
 
 ## Функциональные требования
 * Механизм авторизации пользователей;
@@ -16,7 +16,7 @@
 * Развертывание приложения в виде docker compose приложения.
 
 ## Инструкция по использованию
-Выполнить `docker compose up`
+Выполнить `docker compose up`. Метрики можно увидеть в Grafana, внешний порт которой - 3000. Логин\пароль - admin\admin.
 
 ## Архитектура
 Приложение использует микросервисную архитектуру. Используемые сервисы:
@@ -25,7 +25,34 @@
 3. Сервис управления тренировками;
 4. Сервис рассчета статистики.
 Подробное описание структуры системы можно увидеть на уровнях C4 диаграммы, описание которых приведено в `./c4`.
+После завершения тренировки отправляется Kafka сообщение на анализ данных тренировки, сервис рассчета статистики выполняет асинхронный анализ. Это предотвращает зависание потенциально долгого HTTP-запроса от клиента.
 
 ## Используемые технологии
+* **Backend:** Go;
+* **Frontend:** JavaScript, Vue, HTML, CSS;
+* **Хранение данных:** PostgreSQL;
+* **Брокер сообщений:** Apache Kafka;
+* **Мониторинг:** Prometheus, Grafana;
+* **Развертывание:** Docker Compose.
 
 ## Скриншоты
+<img width="1383" height="1211" alt="image" src="https://github.com/user-attachments/assets/0940d2f6-3a32-470e-ab41-20cd3fe7ed8c" />
+<p align="center"><strong>Страница тренировок</strong></p><br>
+
+<img width="1138" height="1214" alt="image" src="https://github.com/user-attachments/assets/0352a245-00f8-4d44-8d2a-07e26d725e24" />
+<p align="center"><strong>Страница составления программы тренировок</strong></p><br>
+
+<img width="1248" height="1225" alt="image" src="https://github.com/user-attachments/assets/3839a371-7086-4d16-afe9-ed072587130c" />
+<p align="center"><strong>Страница со статусом запущенной тренировки</strong></p><br>
+
+<img width="1241" height="1167" alt="image" src="https://github.com/user-attachments/assets/52c75422-a211-4d35-bee2-63d3ebf915d8" />
+<p align="center"><strong>Страница c анализом пройденной тренировки</strong></p><br>
+
+<img width="1267" height="611" alt="image" src="https://github.com/user-attachments/assets/fcd56399-0605-47e2-87bc-2127b4367f2d" />
+<p align="center"><strong>Страница с регистрацией</strong></p><br>
+
+<img width="2170" height="947" alt="image" src="https://github.com/user-attachments/assets/beabe187-8197-4b35-bb36-c22d1d8350da" />
+<p align="center"><strong>Метрики по определенному сервису</strong></p><br>
+
+<img width="2186" height="1009" alt="image" src="https://github.com/user-attachments/assets/78b26f02-7fec-45bb-8bef-3eb50f559cf2" />
+<p align="center"><strong>Дашборд с доступностью сервисов приложения</strong></p><br>
